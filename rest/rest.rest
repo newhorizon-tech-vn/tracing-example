@@ -1,0 +1,20 @@
+@port = 8088
+@host = localhost:{{port}}
+@token = Authorization: Bearer 1
+@schools = schools
+
+###########
+# SCHOOL #
+###########
+# Read
+GET http://{{host}}/v1/class/1 HTTP/1.1
+{{token}}
+###
+
+# Update
+PUT http://{{host}}/api/v1/{{schools}}/1 HTTP/1.1
+Content-Type: application/json
+{{token}}
+
+{"schoolName":"Test 21","schoolAddress":"Lô 6B Chung cư Phú Thọ , Nguyễn Thị Nhỏ , Quận 11","districtId":2,"cityId":1,"countryId":1,"schoolContactPhone":"","schoolContactName":"Lê Hoàng Quân","schoolContactEmail":"","grades":[{"gradeId":1,"gradeName":"test grade"},{"gradeId":2,"gradeName":"grade 2"}],"programIds":[2,3]}
+###

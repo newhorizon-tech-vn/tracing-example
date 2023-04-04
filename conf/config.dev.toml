@@ -1,0 +1,17 @@
+[setting]
+port = 8088
+
+[database]
+Host = "127.0.0.1"
+User = "root"
+Password = "my-secret-pw"
+Name = "academic"
+Port = 33061
+Timezone = "UTC"
+MaxIdleConns = 10
+MaxOpenConns = 100
+ConnMaxLifetime = 3600 # seconds
+
+[redis]
+address = "127.0.0.1:32768"
+password = "redispw"
