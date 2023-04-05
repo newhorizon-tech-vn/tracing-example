@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Package unit provides units.
-//
-// This package is currently in a pre-GA phase. Backwards incompatible changes
-// may be introduced in subsequent minor version releases as we work to track
-// the evolving OpenTelemetry specification and user feedback.
-package unit // import "go.opentelemetry.io/otel/metric/unit"
+package semconv // import "go.opentelemetry.io/otel/semconv/v1.7.0"
+
+// SchemaURL is the schema URL that matches the version of the semantic conventions
+// that this package defines. Semconv packages starting from v1.4.0 must declare
+// non-empty schema URL in the form https://opentelemetry.io/schemas/<version>
+const SchemaURL = "https://opentelemetry.io/schemas/1.7.0"

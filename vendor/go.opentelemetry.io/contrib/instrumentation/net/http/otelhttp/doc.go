@@ -12,14 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package unit // import "go.opentelemetry.io/otel/metric/unit"
-
-// Unit is a determinate standard quantity of measurement.
-type Unit string
-
-// Units defined by OpenTelemetry.
-const (
-	Dimensionless Unit = "1"
-	Bytes         Unit = "By"
-	Milliseconds  Unit = "ms"
-)
+// Package otelhttp provides an http.Handler and functions that are intended
+// to be used to add tracing by wrapping existing handlers (with Handler) and
+// routes WithRouteTag.
+package otelhttp // import "go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"

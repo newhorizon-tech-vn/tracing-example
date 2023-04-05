@@ -50,6 +50,7 @@ func main() {
 	router.Use(gin.Recovery())
 	router.Use(otelgin.Middleware(serviceName))
 	router.GET("/v1/class/:classId", authorize.Auth(), h.CheckClass)
+	router.GET("/v1/user/:userId", h.GetUser)
 
 	router.Run(fmt.Sprintf("localhost:%d", viper.GetInt("setting.port")))
 	quit := make(chan os.Signal)

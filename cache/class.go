@@ -13,7 +13,11 @@ func SetClassIdsOfUser(ctx context.Context, userId int, classIds []int) error {
 	key := fmt.Sprintf(KeyUserClassIds, userId)
 	redisClient.Del(ctx, key)
 
-	return redisClient.SAdd(ctx, key, classIds).Err()
+	var value []interface{}
+	for _, val := range classIds {
+		value = append(value, val)
+	}
+	return redisClient.SAdd(ctx, key, value...).Err()
 }
 
 func GetClassIdsOfUser(ctx context.Context, userId int) ([]int, error) {

@@ -2,8 +2,6 @@ package services
 
 import (
 	"context"
-	"fmt"
-	"time"
 
 	"github.com/newhorizon-tech-vn/tracing-example/cache"
 	"github.com/newhorizon-tech-vn/tracing-example/models"
@@ -20,13 +18,7 @@ var (
 	dbConn string
 )
 
-func (s *UserService) GetUser() (*entities.User, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(time.Second*60))
-	defer cancel()
-
-	dbConn := "1"
-
-	fmt.Printf(dbConn)
+func (s *UserService) GetUser(ctx context.Context) (*entities.User, error) {
 
 	// try to get from cache
 	user, err := cache.GetUser(ctx, s.UserId)

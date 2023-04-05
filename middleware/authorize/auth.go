@@ -19,7 +19,7 @@ func Auth() gin.HandlerFunc {
 			c.Abort()
 			return
 		}
-		user, err := (&services.UserService{UserId: userId}).GetUser()
+		user, err := (&services.UserService{UserId: userId}).GetUser(c.Request.Context())
 		if err != nil {
 			c.Abort()
 			return
