@@ -2,6 +2,7 @@ package tracing
 
 import (
 	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/propagation"
 	semconv "go.opentelemetry.io/otel/semconv/v1.17.0"
 
 	"go.opentelemetry.io/otel/exporters/jaeger"
@@ -23,6 +24,11 @@ func StartOpenTelemetryHTTP(serviceName, jaegerEntryPoint string) (*trace.Tracer
 	if err != nil {
 		return nil, err
 	}
+
+	// forward trace id from client
+	otel.SetTextMapPropagator(propagation.NewCompositeTextMapPropagator(propagation.TraceContext{}, propagation.Baggage{}))
+
+	// initial new tracer provider
 	tp := trace.NewTracerProvider(
 		// Always be sure to batch in production.
 		trace.WithBatcher(exp),
@@ -34,7 +40,6 @@ func StartOpenTelemetryHTTP(serviceName, jaegerEntryPoint string) (*trace.Tracer
 			// attribute.Int64("ID", id),
 		)),
 	)
-	// return tp, nil
 
 	// Register our TracerProvider as the global so any imported
 	// instrumentation in the future will default to using it.
