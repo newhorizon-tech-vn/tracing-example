@@ -51,3 +51,38 @@ func StartOpenTelemetry(serviceName, jaegerEntryPoint string) (*trace.TracerProv
 
 	return tp, nil
 }
+
+func StartOpenTelemetryByUDP(serviceName, host, port string) (*trace.TracerProvider, error) {
+	exp, err := jaeger.New(jaeger.WithAgentEndpoint(
+		jaeger.WithAgentHost(host),
+		jaeger.WithAgentPort(port),
+	))
+	if err != nil {
+		return nil, err
+	}
+
+	// forward trace id from client
+	otel.SetTextMapPropagator(propagation.NewCompositeTextMapPropagator(propagation.TraceContext{}, propagation.Baggage{}))
+
+	// initial new tracer provider
+	tp := trace.NewTracerProvider(
+		// Always be sure to batch in production.
+		trace.WithBatcher(exp),
+		// Record information about this application in a Resource.
+		trace.WithResource(resource.NewWithAttributes(
+			semconv.SchemaURL,
+			semconv.ServiceNameKey.String(serviceName),
+			// attribute.String("environment", environment),
+			// attribute.Int64("ID", id),
+		)),
+	)
+
+	// Register our TracerProvider as the global so any imported
+	// instrumentation in the future will default to using it.
+	otel.SetTracerProvider(tp)
+
+	// set global info
+	// setGlobalTracer(tp.Tracer(serviceName))
+
+	return tp, nil
+}
