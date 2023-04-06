@@ -17,7 +17,7 @@ func GetUser(ctx context.Context, userId int) (*User, error) {
 		userClient = client.DefaultClient()
 	}
 
-	bytes, statusCode, err := userClient.Get(ctx, fmt.Sprintf("http://localhost:%d/v1/user/%d", viper.GetInt("setting.port"), userId))
+	bytes, statusCode, err := userClient.Get(ctx, fmt.Sprintf("http://localhost:%d/v1/user/%d", viper.GetInt("simulator.port"), userId))
 	if err != nil {
 		return nil, err
 	}

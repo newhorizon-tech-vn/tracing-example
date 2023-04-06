@@ -3,9 +3,8 @@ package v1
 import (
 	"net/http"
 	"strconv"
-	"time"
 
-	"github.com/newhorizon-tech-vn/tracing-example/clients/user"
+	"github.com/newhorizon-tech-vn/tracing-example/services"
 
 	"github.com/gin-gonic/gin"
 	"github.com/newhorizon-tech-vn/tracing-example/pkg/log"
@@ -18,12 +17,10 @@ func (h *Handler) GetUser(c *gin.Context) {
 		return
 	}
 
-	time.Sleep(100 * time.Millisecond)
-
-	// simulator response
-	user := &user.User{
-		ID:   1,
-		Name: "ABC",
+	user, err := (&services.UserService{UserId: userId}).GetUser(c.Request.Context())
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, nil)
+		return
 	}
 
 	log.Debug("start process", "userId", userId)

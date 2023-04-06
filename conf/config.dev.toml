@@ -15,3 +15,11 @@ ConnMaxLifetime = 3600 # seconds
 [redis]
 address = "127.0.0.1:32768"
 password = "redispw"
+
+[jaeger]
+name = "dms-api"
+endpoint = "http://127.0.0.1:14268/api/traces"
+
+[simulator]
+name = "child-service"
+port = 9088

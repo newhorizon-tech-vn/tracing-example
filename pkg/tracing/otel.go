@@ -15,11 +15,12 @@ import (
 // TracerProvider will also use a Resource configured with all the information
 // about the application.
 /*
-* serviceName: rice-pub-api
 * jaegerEntryPoint "http://10.50.32.48:4318/v1/traces"
+* jaegerEntryPoint "http://127.0.0.1:14268/v1/trace"
+* jaegerEntryPoint "http://127.0.0.1:14268/api/traces"
 * environment: prod
  */
-func StartOpenTelemetryHTTP(serviceName, jaegerEntryPoint string) (*trace.TracerProvider, error) {
+func StartOpenTelemetry(serviceName, jaegerEntryPoint string) (*trace.TracerProvider, error) {
 	exp, err := jaeger.New(jaeger.WithCollectorEndpoint(jaeger.WithEndpoint(jaegerEntryPoint)))
 	if err != nil {
 		return nil, err

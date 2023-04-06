@@ -36,10 +36,12 @@ func main() {
 		return
 	}
 
-	serviceName := "tracing-example"
+	// startChildService()
+
+	serviceName := viper.GetString("jaeger.name")
 	// jaegerEndPoint := "http://127.0.0.1:14268/v1/trace"
-	jaegerEndPoint := "http://127.0.0.1:14268/api/traces"
-	if _, err := tracing.StartOpenTelemetryHTTP(serviceName, jaegerEndPoint); err != nil {
+	// jaegerEndPoint := "http://127.0.0.1:14268/api/traces"
+	if _, err := tracing.StartOpenTelemetry(serviceName, viper.GetString("jaeger.endpoint")); err != nil {
 		log.Fatal("connect to jaeger failed", "error", err)
 		return
 	}
@@ -60,10 +62,24 @@ func main() {
 	log.Info("shutting down server ...")
 }
 
-func GetAlbums(c *gin.Context) {
+func startChildService() {
+	serviceName := "child-service"
+	if _, err := tracing.StartOpenTelemetry(serviceName, viper.GetString("jaeger.endpoint")); err != nil {
+		log.Fatal("connect to jaeger failed", "error", err)
+		return
+	}
 
-}
+	h := controllers.MakeHandler("v1")
 
-func PostAlbums(c *gin.Context) {
+	router := gin.Default()
+	router.Use(gin.Recovery())
+	router.Use(otelgin.Middleware(serviceName))
+	router.GET("/v1/user/:userId", h.GetUser)
 
+	router.Run(fmt.Sprintf("localhost:%d", viper.GetInt("simulator.port")))
+	quit := make(chan os.Signal)
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+	<-quit
+
+	log.Info("shutting down server ...")
 }

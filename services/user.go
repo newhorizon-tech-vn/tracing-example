@@ -2,6 +2,7 @@ package services
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/newhorizon-tech-vn/tracing-example/cache"
 	"github.com/newhorizon-tech-vn/tracing-example/models"
@@ -22,12 +23,14 @@ func (s *UserService) GetUser(ctx context.Context) (*entities.User, error) {
 
 	// try to get from cache
 	user, err := cache.GetUser(ctx, s.UserId)
+	// hard code to test tracing database
+	err = fmt.Errorf("hard code to test")
 	if err == nil {
 		return user, nil
 	}
 
 	// try to get from storage
-	user, err = models.GetUser(s.UserId)
+	user, err = models.GetUser(ctx, s.UserId)
 	if err != nil {
 		return nil, err
 	}
