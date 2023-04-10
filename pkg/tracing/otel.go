@@ -46,9 +46,6 @@ func StartOpenTelemetry(serviceName, jaegerEntryPoint string) (*trace.TracerProv
 	// instrumentation in the future will default to using it.
 	otel.SetTracerProvider(tp)
 
-	// set global info
-	// setGlobalTracer(tp.Tracer(serviceName))
-
 	return tp, nil
 }
 
@@ -80,9 +77,6 @@ func StartOpenTelemetryByUDP(serviceName, host, port string) (*trace.TracerProvi
 	// Register our TracerProvider as the global so any imported
 	// instrumentation in the future will default to using it.
 	otel.SetTracerProvider(tp)
-
-	// set global info
-	// setGlobalTracer(tp.Tracer(serviceName))
 
 	return tp, nil
 }
