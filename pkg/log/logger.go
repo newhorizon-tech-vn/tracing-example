@@ -1,67 +1,67 @@
+// Copyright (c) 2019 The Jaeger Authors.
+// Copyright (c) 2017 Uber Technologies, Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 package log
 
 import (
-	"fmt"
-	"os"
+	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 )
 
-const (
-	DEBUG = iota // 0
-	INFO
-	WARN
-	ERROR
-	FATAL
-)
-
-const DEFAULT_LEVEL = ERROR
-
-type SimpleLogger struct {
-	level int
+// Logger is a simplified abstraction of the zap.Logger
+type Logger interface {
+	Debug(msg string, fields ...zapcore.Field)
+	Info(msg string, fields ...zapcore.Field)
+	Warn(msg string, fields ...zapcore.Field)
+	Error(msg string, fields ...zapcore.Field)
+	Fatal(msg string, fields ...zapcore.Field)
+	Panic(msg string, fields ...zapcore.Field)
 }
 
-func NewSimpleLogger(level int) *SimpleLogger {
-	return &SimpleLogger{
-		level: level,
-	}
+// logger delegates all calls to the underlying zap.Logger
+type logger struct {
+	logger     *zap.Logger
+	spanFields []zapcore.Field
 }
 
-func (s *SimpleLogger) Debug(a ...any) {
-	if s.level <= DEBUG {
-		return
-	}
-
-	fmt.Println("DEBUG", a)
+// Debug logs an debig msg with fields
+func (l logger) Debug(msg string, fields ...zapcore.Field) {
+	l.logger.Debug(msg, append(l.spanFields, fields...)...)
 }
 
-func (s *SimpleLogger) Info(a ...any) {
-	if s.level <= INFO {
-		return
-	}
-
-	fmt.Println("INFO", a)
+// Info logs an info msg with fields
+func (l logger) Info(msg string, fields ...zapcore.Field) {
+	l.logger.Info(msg, append(l.spanFields, fields...)...)
 }
 
-func (s *SimpleLogger) Error(a ...any) {
-	if s.level <= ERROR {
-		return
-	}
-
-	fmt.Println("ERROR", a)
+// Warn logs an warn msg with fields
+func (l logger) Warn(msg string, fields ...zapcore.Field) {
+	l.logger.Warn(msg, append(l.spanFields, fields...)...)
 }
 
-func (s *SimpleLogger) Warn(a ...any) {
-	if s.level <= WARN {
-		return
-	}
-
-	fmt.Println("WARN", a)
+// Error logs an error msg with fields
+func (l logger) Error(msg string, fields ...zapcore.Field) {
+	l.logger.Error(msg, append(l.spanFields, fields...)...)
 }
 
-func (s *SimpleLogger) Fatal(a ...any) {
-	if s.level <= FATAL {
-		return
-	}
+// Fatal logs a fatal error msg with fields
+func (l logger) Fatal(msg string, fields ...zapcore.Field) {
+	l.logger.Fatal(msg, append(l.spanFields, fields...)...)
+}
 
-	fmt.Println("FATAL", a)
-	os.Exit(-1)
+// Panic logs an panic msg with fields
+func (l logger) Panic(msg string, fields ...zapcore.Field) {
+	l.logger.Panic(msg, append(l.spanFields, fields...)...)
 }

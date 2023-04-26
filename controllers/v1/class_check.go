@@ -9,11 +9,13 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/newhorizon-tech-vn/tracing-example/middleware/authorize"
+	"github.com/newhorizon-tech-vn/tracing-example/pkg/log"
 	"github.com/newhorizon-tech-vn/tracing-example/services"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/codes"
 	"go.opentelemetry.io/otel/trace"
+	"go.uber.org/zap"
 	"golang.org/x/exp/slices"
 )
 
@@ -31,8 +33,11 @@ func (h *Handler) CheckClass(c *gin.Context) {
 		return
 	}
 
+	log.For(c.Request.Context()).Debug("[check-class] start process", zap.Int("user_id", userId.(int)), zap.Int("class_id", classId))
+
 	roleId, exists := c.Get(authorize.KeyRoleId)
 	if exists == false {
+		log.For(c.Request.Context()).Error("[check-class] get key role failed", zap.Int("user_id", userId.(int)), zap.Int("class_id", classId))
 		c.JSON(http.StatusNonAuthoritativeInfo, nil)
 		return
 	}
@@ -43,16 +48,19 @@ func (h *Handler) CheckClass(c *gin.Context) {
 
 	classIds, err := (&services.ClassService{}).GetClassIds(c.Request.Context(), userId.(int), roleId.(int))
 	if err != nil {
+		log.For(c.Request.Context()).Error("[check-class] get class ids failed", zap.Int("user_id", userId.(int)), zap.Int("class_id", classId), zap.Error(err))
 		c.JSON(http.StatusInternalServerError, nil)
 		return
 	}
 
 	index := slices.IndexFunc(classIds, func(id int) bool { return id == classId })
 	if index < 0 {
+		log.For(c.Request.Context()).Error("[check-class] class id isnot found", zap.Int("user_id", userId.(int)), zap.Int("class_id", classId))
 		c.JSON(http.StatusInternalServerError, nil)
 		return
 	}
 
+	log.For(c.Request.Context()).Info("[check-class] process success", zap.Int("user_id", userId.(int)), zap.Int("class_id", classId))
 	c.JSON(http.StatusOK, nil)
 }
 

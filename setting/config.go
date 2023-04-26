@@ -1,11 +1,11 @@
 package setting
 
 import (
+	"fmt"
 	"os"
 	"time"
 
 	"github.com/fsnotify/fsnotify"
-	"github.com/newhorizon-tech-vn/tracing-example/pkg/log"
 	"github.com/newhorizon-tech-vn/tracing-example/pkg/util"
 	"github.com/spf13/viper"
 )
@@ -28,11 +28,10 @@ func InitSetting() error {
 	if len(cfgFile) == 0 {
 		cfgFile = "./conf/config.dev.toml"
 	}
-	log.Info("Read config file", cfgFile)
 
 	folder, fileName, ext, err := util.ExtractFilePath(cfgFile)
 	if err != nil {
-		log.Error("Extract config file failed", "file", cfgFile, "error", err)
+		fmt.Printf("ERROR: Extract config file failed file: %s error: %s \n", cfgFile, err.Error())
 		return err
 	}
 	// Setting
@@ -42,14 +41,14 @@ func InitSetting() error {
 	viper.SetConfigType(ext)
 
 	if err := viper.ReadInConfig(); err != nil {
-		log.Error("EViper using config file failed", "file", viper.ConfigFileUsed(), "error", err)
+		fmt.Printf("ERROR: viper using config file failed file: %s error: %s \n", viper.ConfigFileUsed(), err.Error())
 		return err
 	}
 
 	//watch on config change
 	viper.WatchConfig()
 	viper.OnConfigChange(func(e fsnotify.Event) {
-		log.Warn("Config file changed", "event", e.Name)
+		fmt.Printf("WARN: Config file changed event: %s \n", e.Name)
 	})
 
 	viper.SetDefault("redis.maxRetry", 5)
@@ -62,6 +61,6 @@ func InitSetting() error {
 		},
 	}
 
-	log.Info("Read config successful")
+	fmt.Printf("INFO: read config successful \n")
 	return nil
 }

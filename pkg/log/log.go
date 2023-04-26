@@ -1,43 +1,75 @@
 package log
 
-var logger *SimpleLogger
+import (
+	"context"
 
-func Debug(a ...any) {
-	if logger == nil {
-		logger = NewSimpleLogger(DEFAULT_LEVEL)
+	"go.uber.org/zap/zapcore"
+)
+
+var (
+	instance Factory
+)
+
+func InitLogger(consoleLevel, stacktraceLevel string) {
+	if consoleLevel == "" {
+		consoleLevel = DebugLevel
 	}
 
-	logger.Debug(a)
+	if stacktraceLevel == "" {
+		stacktraceLevel = PanicLevel
+	}
+
+	instance = NewFactory(Configuration{
+		EnableConsole:     true,
+		ConsoleJSONFormat: true,
+		ConsoleLevel:      consoleLevel,
+		StacktraceLevel:   stacktraceLevel,
+	})
 }
 
-func Info(a ...any) {
-	if logger == nil {
-		logger = NewSimpleLogger(DEFAULT_LEVEL)
-	}
-
-	logger.Info(a)
+// Inst ...
+func Inst() Factory {
+	return instance
 }
 
-func Error(a ...any) {
-	if logger == nil {
-		logger = NewSimpleLogger(DEFAULT_LEVEL)
-	}
-
-	logger.Error(a)
+// Bg creates a context-unaware logger.
+func Bg() Logger {
+	return instance.Bg()
 }
 
-func Warn(a ...any) {
-	if logger == nil {
-		logger = NewSimpleLogger(DEFAULT_LEVEL)
-	}
-
-	logger.Warn(a)
+// For returns a context-aware Logger. If the context
+// contains an OpenTracing span, all logging calls are also
+// echo-ed into the span.
+func For(ctx context.Context) Logger {
+	return instance.For(ctx)
 }
 
-func Fatal(a ...any) {
-	if logger == nil {
-		logger = NewSimpleLogger(DEFAULT_LEVEL)
-	}
+// Debug logs an debig msg with fields
+func Debug(msg string, fields ...zapcore.Field) {
+	instance.Bg().Debug(msg, fields...)
+}
 
-	logger.Fatal(a)
+// Info logs an info msg with fields
+func Info(msg string, fields ...zapcore.Field) {
+	instance.Bg().Info(msg, fields...)
+}
+
+// Warn logs an warn msg with fields
+func Warn(msg string, fields ...zapcore.Field) {
+	instance.Bg().Warn(msg, fields...)
+}
+
+// Error logs an error msg with fields
+func Error(msg string, fields ...zapcore.Field) {
+	instance.Bg().Error(msg, fields...)
+}
+
+// Fatal logs a fatal error msg with fields
+func Fatal(msg string, fields ...zapcore.Field) {
+	instance.Bg().Fatal(msg, fields...)
+}
+
+// Panic logs an panic msg with fields
+func Panic(msg string, fields ...zapcore.Field) {
+	instance.Bg().Panic(msg, fields...)
 }

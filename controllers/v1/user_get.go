@@ -5,6 +5,7 @@ import (
 	"strconv"
 
 	"github.com/newhorizon-tech-vn/tracing-example/services"
+	"go.uber.org/zap"
 
 	"github.com/gin-gonic/gin"
 	"github.com/newhorizon-tech-vn/tracing-example/pkg/log"
@@ -23,6 +24,6 @@ func (h *Handler) GetUser(c *gin.Context) {
 		return
 	}
 
-	log.Debug("start process", "userId", userId)
+	log.Debug("start process", zap.Int("userId", userId))
 	c.JSON(http.StatusOK, user)
 }

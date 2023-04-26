@@ -9,6 +9,7 @@ import (
 	"github.com/newhorizon-tech-vn/tracing-example/models/entities"
 	"github.com/newhorizon-tech-vn/tracing-example/pkg/log"
 	"github.com/newhorizon-tech-vn/tracing-example/setting"
+	"go.uber.org/zap"
 )
 
 type UserService struct {
@@ -38,7 +39,7 @@ func (s *UserService) GetUser(ctx context.Context) (*entities.User, error) {
 	// update cache
 	// if udpate cache failed, we only write log (and push error metrics), then still continue return user data
 	if err = cache.SetUser(ctx, user, setting.Setting.Redis.DefaultExpireTime); err != nil {
-		log.Error("update cache failed", "user_id", s.UserId, "error", err)
+		log.Error("update cache failed", zap.Int("user_id", s.UserId), zap.Error(err))
 	}
 
 	return user, nil

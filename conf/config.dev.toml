@@ -12,6 +12,10 @@ MaxIdleConns = 10
 MaxOpenConns = 100
 ConnMaxLifetime = 3600 # seconds
 
+[log]
+console_level = "debug"
+stacktrace_level = "panic"
+
 [redis]
 address = "127.0.0.1:32768"
 password = "redispw"
@@ -25,3 +29,9 @@ udp_port = "5775"
 [simulator]
 name = "child-service"
 port = 9088
+
+[kafka]
+version = "3.4.0"
+brokers = ["localhost:29092"]
+topic = "users-notify"
+group_id = "tracing-example-group-id-dev"
