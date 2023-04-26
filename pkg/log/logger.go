@@ -22,6 +22,7 @@ import (
 
 // Logger is a simplified abstraction of the zap.Logger
 type Logger interface {
+	With(fields ...zapcore.Field) *zap.Logger
 	Debug(msg string, fields ...zapcore.Field)
 	Info(msg string, fields ...zapcore.Field)
 	Warn(msg string, fields ...zapcore.Field)
@@ -36,32 +37,36 @@ type logger struct {
 	spanFields []zapcore.Field
 }
 
+func (l logger) With(fields ...zapcore.Field) *zap.Logger {
+	return l.logger.With(l.spanFields...)
+}
+
 // Debug logs an debig msg with fields
 func (l logger) Debug(msg string, fields ...zapcore.Field) {
-	l.logger.Debug(msg, append(l.spanFields, fields...)...)
+	l.logger.With(l.spanFields...).Debug(msg, fields...)
 }
 
 // Info logs an info msg with fields
 func (l logger) Info(msg string, fields ...zapcore.Field) {
-	l.logger.Info(msg, append(l.spanFields, fields...)...)
+	l.logger.With(l.spanFields...).Info(msg, fields...)
 }
 
 // Warn logs an warn msg with fields
 func (l logger) Warn(msg string, fields ...zapcore.Field) {
-	l.logger.Warn(msg, append(l.spanFields, fields...)...)
+	l.logger.With(l.spanFields...).Warn(msg, fields...)
 }
 
 // Error logs an error msg with fields
 func (l logger) Error(msg string, fields ...zapcore.Field) {
-	l.logger.Error(msg, append(l.spanFields, fields...)...)
+	l.logger.With(l.spanFields...).Error(msg, fields...)
 }
 
 // Fatal logs a fatal error msg with fields
 func (l logger) Fatal(msg string, fields ...zapcore.Field) {
-	l.logger.Fatal(msg, append(l.spanFields, fields...)...)
+	l.logger.With(l.spanFields...).Fatal(msg, fields...)
 }
 
 // Panic logs an panic msg with fields
 func (l logger) Panic(msg string, fields ...zapcore.Field) {
-	l.logger.Panic(msg, append(l.spanFields, fields...)...)
+	l.logger.With(l.spanFields...).Panic(msg, fields...)
 }
