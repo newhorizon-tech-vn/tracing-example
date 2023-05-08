@@ -2,6 +2,7 @@ package log
 
 import (
 	"context"
+	"fmt"
 
 	"go.uber.org/zap/zapcore"
 )
@@ -10,21 +11,21 @@ var (
 	instance Factory
 )
 
-func InitLogger(consoleLevel, stacktraceLevel string) {
-	if consoleLevel == "" {
-		consoleLevel = DebugLevel
+func InitLogger(config *Configuration) error {
+	if config.LogLevel == "" {
+		config.LogLevel = DebugLevel
 	}
 
-	if stacktraceLevel == "" {
-		stacktraceLevel = PanicLevel
+	if config.StacktraceLevel == "" {
+		config.StacktraceLevel = PanicLevel
 	}
 
-	instance = NewFactory(Configuration{
-		EnableConsole:     true,
-		ConsoleJSONFormat: true,
-		ConsoleLevel:      consoleLevel,
-		StacktraceLevel:   stacktraceLevel,
-	})
+	if (config.File == nil) && (config.Console == nil) {
+		return fmt.Errorf("log writer is nil")
+	}
+
+	instance = NewFactory(config)
+	return nil
 }
 
 // Inst ...

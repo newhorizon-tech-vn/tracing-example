@@ -1,5 +1,5 @@
 [setting]
-port = 8088
+port = 8080
 
 [database]
 Host = "127.0.0.1"
@@ -14,7 +14,11 @@ ConnMaxLifetime = 3600 # seconds
 
 [log]
 console_level = "debug"
-stacktrace_level = "panic"
+stacktrace_level = "debug"
+file_name = "./tracing-example.log"
+file_max_size = 1
+file_max_age = 14
+file_max_backups = 5
 
 [redis]
 address = "127.0.0.1:32768"

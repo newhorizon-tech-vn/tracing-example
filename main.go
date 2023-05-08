@@ -17,6 +17,8 @@ import (
 	"github.com/newhorizon-tech-vn/tracing-example/pkg/log"
 	"github.com/newhorizon-tech-vn/tracing-example/pkg/tracing"
 	"github.com/newhorizon-tech-vn/tracing-example/setting"
+
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin"
 )
 
@@ -37,7 +39,18 @@ func main() {
 		return
 	}
 
-	log.InitLogger(viper.GetString("log.console_level"), viper.GetString("log.stacktrace_level"))
+	log.InitLogger(&log.Configuration{
+		JSONFormat:      true,
+		LogLevel:        viper.GetString("log.console_level"),
+		StacktraceLevel: viper.GetString("log.stacktrace_level"),
+		File: &log.FileConfiguration{
+			Filename:   viper.GetString("log.file_name"),
+			MaxSize:    viper.GetInt("log.file_max_size"),
+			MaxAge:     viper.GetInt("log.file_max_age"),
+			MaxBackups: viper.GetInt("log.file_max_backups"),
+		},
+		Console: &log.ConsoleConfiguration{},
+	})
 
 	/*
 		// create kafka consumer
@@ -47,7 +60,6 @@ func main() {
 			return
 		}
 		go c.Start()
-
 		// create kafka producer
 		producer, err := kafka.NewProducer(producers.GetProducerConfig())
 		if err != nil {
@@ -55,7 +67,6 @@ func main() {
 			return
 		}
 		producers.SetProducer(producer)
-
 		err = producers.ProduceMessage(context.Background(), viper.GetString("kafka.topic"), "key-1", "abcdef")
 		if err != nil {
 			log.Fatal("produce message failed", zap.Error(err))
@@ -83,8 +94,11 @@ func main() {
 	router := gin.Default()
 	router.Use(gin.Recovery())
 	router.Use(otelgin.Middleware(serviceName))
+	router.GET("/metrics", gin.WrapH(promhttp.Handler()))
 	router.GET("/v1/class/:classId", authorize.Auth(), h.CheckClass)
 	router.GET("/v1/user/:userId", h.GetUser)
+	router.POST("/v1/user", h.CreateUser)
+	router.PUT("/v1/user/:userId", h.EditUser)
 
 	router.Run(fmt.Sprintf("localhost:%d", viper.GetInt("setting.port")))
 	quit := make(chan os.Signal)

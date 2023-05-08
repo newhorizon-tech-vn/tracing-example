@@ -5,6 +5,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/natefinch/lumberjack"
 	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
@@ -16,30 +17,51 @@ type Factory struct {
 	logger *zap.Logger
 }
 
-// Configuration ...
+type ConsoleConfiguration struct {
+}
+
+type FileConfiguration struct {
+	Filename   string // "./chat.log"
+	MaxSize    int    // megabytes
+	MaxAge     int    // days
+	MaxBackups int    // files
+}
+
+// If Console isnot nil, write log to std. If File isnot nil, write log to file.
 type Configuration struct {
-	EnableConsole     bool
-	ConsoleJSONFormat bool
-	ConsoleLevel      string
-	StacktraceLevel   string
+	JSONFormat      bool
+	LogLevel        string
+	StacktraceLevel string
+	File            *FileConfiguration
+	Console         *ConsoleConfiguration
 }
 
 // NewFactory creates a new Factory.
-func NewFactory(config Configuration) Factory {
+func NewFactory(config *Configuration) Factory {
 	cores := []zapcore.Core{}
+	level := getZapLevel(config.LogLevel) // log level
 
-	if config.EnableConsole {
-		level := getZapLevel(config.ConsoleLevel)
-		writer := zapcore.Lock(os.Stdout)
-		core := zapcore.NewCore(getEncoder(config.ConsoleJSONFormat), writer, level)
+	// write to stdout
+	if config.Console != nil {
+		core := zapcore.NewCore(getEncoder(config.JSONFormat), zapcore.Lock(os.Stdout), level)
+		cores = append(cores, core)
+	}
+
+	// write to file
+	if config.File != nil {
+		writer := zapcore.AddSync(&lumberjack.Logger{
+			Filename:   config.File.Filename,   // log file name
+			MaxSize:    config.File.MaxSize,    // max size per file (in MB). Default 100MB
+			MaxBackups: config.File.MaxBackups, // count backup file. Default keep all files
+			MaxAge:     config.File.MaxAge,     // Max time file old log. Default keep forever
+		})
+		core := zapcore.NewCore(getEncoder(config.JSONFormat), writer, level)
 		cores = append(cores, core)
 	}
 
 	combinedCore := zapcore.NewTee(cores...)
 
-	// AddCallerSkip skips 1 number of callers, this is important else the file that gets
-	// logged will always be the wrapped file. In our case zap.go
-	stacktraceLevel := getZapLevel(config.StacktraceLevel)
+	stacktraceLevel := getZapLevel(config.StacktraceLevel) // trace level
 	logger := zap.New(combinedCore,
 		zap.AddCallerSkip(1),
 		zap.AddCaller(),

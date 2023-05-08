@@ -1,4 +1,4 @@
-@port = 8088
+@port = 8080
 @host = localhost:{{port}}
 @token = Authorization: Bearer 1
 
@@ -6,3 +6,18 @@
 GET http://{{host}}/v1/class/1 HTTP/1.1
 {{token}}
 ###
+
+GET http://{{host}}/v1/user/1 HTTP/1.1
+{{token}}
+###
+
+# Create
+POST http://{{host}}/v1/user HTTP/1.1
+Content-Type: application/x-www-form-urlencoded
+{{token}}
+###
+
+# Update
+PUT http://{{host}}/v1/user/22 HTTP/1.1
+Content-Type: application/x-www-form-urlencoded
+{{token}}

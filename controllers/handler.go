@@ -8,6 +8,8 @@ import (
 type IHandler interface {
 	CheckClass(c *gin.Context)
 	GetUser(c *gin.Context)
+	CreateUser(c *gin.Context)
+	EditUser(c *gin.Context)
 }
 
 func MakeHandler(version string) IHandler {
