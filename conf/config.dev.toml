@@ -14,7 +14,7 @@ ConnMaxLifetime = 3600 # seconds
 
 [log]
 console_level = "debug"
-stacktrace_level = "debug"
+stacktrace_level = "panic"
 file_name = "./tracing-example.log"
 file_max_size = 1
 file_max_age = 14

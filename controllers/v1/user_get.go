@@ -3,6 +3,7 @@ package v1
 import (
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/newhorizon-tech-vn/tracing-example/services"
 	"go.uber.org/zap"
@@ -17,6 +18,9 @@ func (h *Handler) GetUser(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, nil)
 		return
 	}
+
+	log.For(c.Request.Context()).Debug("[get-user] start process")
+	time.Sleep(220 * time.Millisecond)
 
 	user, err := (&services.UserService{UserId: userId}).GetUser(c.Request.Context())
 	if err != nil {

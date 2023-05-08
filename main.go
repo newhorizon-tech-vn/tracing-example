@@ -18,7 +18,8 @@ import (
 	"github.com/newhorizon-tech-vn/tracing-example/pkg/tracing"
 	"github.com/newhorizon-tech-vn/tracing-example/setting"
 
-	"github.com/prometheus/client_golang/prometheus/promhttp"
+	// ginprometheus "github.com/zsais/go-gin-prometheus"
+	"github.com/Depado/ginprom"
 	"go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin"
 )
 
@@ -94,7 +95,29 @@ func main() {
 	router := gin.Default()
 	router.Use(gin.Recovery())
 	router.Use(otelgin.Middleware(serviceName))
-	router.GET("/metrics", gin.WrapH(promhttp.Handler()))
+	// router.GET("/metrics", gin.WrapH(promhttp.Handler()))
+	/*
+		p := ginprometheus.NewPrometheus("tracingexample")
+		p.ReqCntURLLabelMappingFn = func(c *gin.Context) string {
+			url := c.Request.URL.Path
+			for _, p := range c.Params {
+				if p.Key == "name" {
+					url = strings.Replace(url, p.Value, ":name", 1)
+					break
+				}
+			}
+			return url
+		}
+		p.Use(router)
+	*/
+
+	p := ginprom.New(
+		ginprom.Engine(router),
+		ginprom.Subsystem("gin2"),
+		ginprom.Path("/metrics"),
+	)
+	router.Use(p.Instrument())
+
 	router.GET("/v1/class/:classId", authorize.Auth(), h.CheckClass)
 	router.GET("/v1/user/:userId", h.GetUser)
 	router.POST("/v1/user", h.CreateUser)
