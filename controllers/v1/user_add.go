@@ -10,6 +10,7 @@ import (
 
 func (h *Handler) CreateUser(c *gin.Context) {
 	log.For(c.Request.Context()).Debug("[create-user] start process")
-	time.Sleep(100 * time.Millisecond)
+	t := (time.Now().Unix() % 10) * 100
+	time.Sleep(time.Duration(t) * time.Millisecond)
 	c.JSON(http.StatusOK, nil)
 }

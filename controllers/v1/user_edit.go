@@ -10,6 +10,7 @@ import (
 
 func (h *Handler) EditUser(c *gin.Context) {
 	log.For(c.Request.Context()).Debug("[edit-user] start process")
-	time.Sleep(300 * time.Millisecond)
+	t := (time.Now().Unix() % 10) * 100
+	time.Sleep(time.Duration(t) * time.Millisecond)
 	c.JSON(http.StatusOK, nil)
 }

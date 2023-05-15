@@ -20,7 +20,8 @@ func (h *Handler) GetUser(c *gin.Context) {
 	}
 
 	log.For(c.Request.Context()).Debug("[get-user] start process")
-	time.Sleep(220 * time.Millisecond)
+	t := (time.Now().Unix() % 10) * 100
+	time.Sleep(time.Duration(t) * time.Millisecond)
 
 	user, err := (&services.UserService{UserId: userId}).GetUser(c.Request.Context())
 	if err != nil {

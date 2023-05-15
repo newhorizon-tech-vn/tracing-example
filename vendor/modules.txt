@@ -245,10 +245,11 @@ github.com/pierrec/lz4/v4/internal/lz4block
 github.com/pierrec/lz4/v4/internal/lz4errors
 github.com/pierrec/lz4/v4/internal/lz4stream
 github.com/pierrec/lz4/v4/internal/xxh32
-# github.com/prometheus/client_golang v1.15.0
+# github.com/prometheus/client_golang v1.15.1
 ## explicit; go 1.17
 github.com/prometheus/client_golang/prometheus
 github.com/prometheus/client_golang/prometheus/internal
+github.com/prometheus/client_golang/prometheus/promauto
 github.com/prometheus/client_golang/prometheus/promhttp
 # github.com/prometheus/client_model v0.3.0
 ## explicit; go 1.9
@@ -396,7 +397,7 @@ golang.org/x/arch/x86/x86asm
 golang.org/x/crypto/md4
 golang.org/x/crypto/pbkdf2
 golang.org/x/crypto/sha3
-# golang.org/x/exp v0.0.0-20230425010034-47ecfdc1ba53
+# golang.org/x/exp v0.0.0-20230510235704-dd950f8aeaea
 ## explicit; go 1.20
 golang.org/x/exp/constraints
 golang.org/x/exp/maps

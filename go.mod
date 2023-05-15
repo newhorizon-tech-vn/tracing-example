@@ -10,6 +10,7 @@ require (
 	github.com/go-redis/redis/extra/redisotel/v8 v8.11.5
 	github.com/go-redis/redis/v8 v8.11.5
 	github.com/natefinch/lumberjack v2.0.0+incompatible
+	github.com/prometheus/client_golang v1.15.1
 	github.com/spf13/viper v1.15.0
 	github.com/uptrace/opentelemetry-go-extra/otelgorm v0.2.0
 	go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin v0.41.1
@@ -20,7 +21,7 @@ require (
 	go.opentelemetry.io/otel/sdk v1.15.1
 	go.opentelemetry.io/otel/trace v1.15.1
 	go.uber.org/zap v1.24.0
-	golang.org/x/exp v0.0.0-20230425010034-47ecfdc1ba53
+	golang.org/x/exp v0.0.0-20230510235704-dd950f8aeaea
 	gorm.io/driver/mysql v1.5.0
 	gorm.io/gorm v1.25.1
 )
@@ -70,7 +71,6 @@ require (
 	github.com/modern-go/reflect2 v1.0.2 // indirect
 	github.com/pelletier/go-toml/v2 v2.0.7 // indirect
 	github.com/pierrec/lz4/v4 v4.1.17 // indirect
-	github.com/prometheus/client_golang v1.15.0 // indirect
 	github.com/prometheus/client_model v0.3.0 // indirect
 	github.com/prometheus/common v0.42.0 // indirect
 	github.com/prometheus/procfs v0.9.0 // indirect

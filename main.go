@@ -4,8 +4,12 @@ import (
 	"fmt"
 	"os"
 	"os/signal"
+	"strconv"
 	"syscall"
+	"time"
 
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promauto"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
 
@@ -18,7 +22,6 @@ import (
 	"github.com/newhorizon-tech-vn/tracing-example/pkg/tracing"
 	"github.com/newhorizon-tech-vn/tracing-example/setting"
 
-	// ginprometheus "github.com/zsais/go-gin-prometheus"
 	"github.com/Depado/ginprom"
 	"go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin"
 )
@@ -95,26 +98,12 @@ func main() {
 	router := gin.Default()
 	router.Use(gin.Recovery())
 	router.Use(otelgin.Middleware(serviceName))
-	// router.GET("/metrics", gin.WrapH(promhttp.Handler()))
-	/*
-		p := ginprometheus.NewPrometheus("tracingexample")
-		p.ReqCntURLLabelMappingFn = func(c *gin.Context) string {
-			url := c.Request.URL.Path
-			for _, p := range c.Params {
-				if p.Key == "name" {
-					url = strings.Replace(url, p.Value, ":name", 1)
-					break
-				}
-			}
-			return url
-		}
-		p.Use(router)
-	*/
 
 	p := ginprom.New(
 		ginprom.Engine(router),
-		ginprom.Subsystem("gin2"),
 		ginprom.Path("/metrics"),
+		ginprom.Namespace("tracing_example_namespace"),
+		ginprom.Subsystem("tracing_example_subsystem"),
 	)
 	router.Use(p.Instrument())
 
@@ -122,6 +111,9 @@ func main() {
 	router.GET("/v1/user/:userId", h.GetUser)
 	router.POST("/v1/user", h.CreateUser)
 	router.PUT("/v1/user/:userId", h.EditUser)
+
+	go StartMetrics()
+	go StartMetricsVector()
 
 	router.Run(fmt.Sprintf("localhost:%d", viper.GetInt("setting.port")))
 	quit := make(chan os.Signal)
@@ -151,4 +143,68 @@ func startChildService() {
 	<-quit
 
 	log.Info("shutting down server ...")
+}
+
+func StartMetrics() {
+	totalRequest := promauto.NewCounter(prometheus.CounterOpts{
+		Name: "total_request",
+		Help: "Total request",
+	})
+
+	requestProcessed := promauto.NewHistogram(
+		prometheus.HistogramOpts{
+			Name:    "request_processed",
+			Help:    "Request time",
+			Buckets: prometheus.DefBuckets,
+		},
+	)
+
+	for {
+		totalRequest.Inc()
+		start := time.Now()
+		t := (time.Now().Unix() % 10) * 100
+		time.Sleep(time.Duration(t) * time.Millisecond)
+		requestProcessed.Observe(time.Since(start).Seconds())
+	}
+}
+
+func StartMetricsVector() {
+	totalRequest := promauto.NewCounterVec(prometheus.CounterOpts{
+		Name: "total_http_request",
+		Help: "HTTP request",
+	},
+		[]string{"api", "method", "code"},
+	)
+
+	requestProcessed := promauto.NewHistogramVec(prometheus.HistogramOpts{
+		Name: "http_request_processed",
+		Help: "HTTP time",
+	},
+		[]string{"api", "method", "code"},
+	)
+
+	for {
+		t := (time.Now().Unix() % 10) * 100
+		start := time.Now()
+
+		api, method, code := simulateMetrics(t)
+		totalRequest.WithLabelValues(api, method, strconv.FormatInt(code, 10)).Inc()
+
+		time.Sleep(time.Duration(t) * time.Millisecond)
+		requestProcessed.WithLabelValues(api, method, strconv.FormatInt(code, 10)).Observe(time.Since(start).Seconds())
+	}
+}
+
+func simulateMetrics(t int64) (string, string, int64) {
+	method := "GET"
+	if t%2 == 0 {
+		method = "POST"
+	}
+
+	api := "v1/users"
+	if t%4 == 0 {
+		api = "v1/classes"
+	}
+
+	return api, method, t % 500
 }
